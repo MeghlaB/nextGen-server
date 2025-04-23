@@ -5,9 +5,14 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const port = process.env.PORT || 5000
 
-app.use(cors([
-
-]))
+// midleWare
+app.use(cors({
+  origin: ['https://next-gen-921eb.web.app',
+    'http://localhost:5173',
+  ],
+  // methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
+  credentials: true,  
+}))
 
 app.use(express.json())
 
@@ -27,9 +32,9 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-     await client.connect();
+    //  await client.connect();
     const usersCollection = client.db("nextGen").collection("users");
-    const doctorCollection = client.db("Hospital").collection("doctor");
+    const blogCollection = client.db("nextGen").collection("blogs");
 // jwt api related
 app.post('/jwt',async(req,res)=>{
     const user = req.body;
@@ -58,7 +63,8 @@ app.post('/jwt',async(req,res)=>{
     // user get collection api
     app.get('/users',async(req,res)=>{
       const result = await usersCollection.find().toArray()
-      console.log(result)
+      // console.log(result)
+      
       res.send(result)
     })
 
@@ -66,7 +72,7 @@ app.post('/jwt',async(req,res)=>{
         const id = req.params.id
         const query = { _id: new ObjectId(id) }
         const result = await usersCollection.deleteOne(query)
-        console.log(result)
+        // console.log(result)
         res.send(result)
       })
 
@@ -83,7 +89,20 @@ app.post('/jwt',async(req,res)=>{
         res.send(result)
       })
 
+// add blog api collection
+      app.post('/add-blog', async(req,res)=>{
+        const blogData = req.body;
+        const result = await blogCollection.insertOne(blogData)
+        console.log(result)
+        res.send(result)
+    })
 
+    // blog collection api 
+    app.get('/blogs',async(req,res)=>{
+      const result = await blogCollection.find().toArray()
+      console.log(result)
+      res.send(result)
+    })
 
 
 
@@ -100,8 +119,8 @@ app.post('/jwt',async(req,res)=>{
 
 
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
