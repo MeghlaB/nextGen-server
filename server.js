@@ -35,6 +35,7 @@ async function run() {
     //  await client.connect();
     const usersCollection = client.db("nextGen").collection("users");
     const blogCollection = client.db("nextGen").collection("blogs");
+    const applicationCollection = client.db("nextGen").collection("application");
 // jwt api related
 app.post('/jwt',async(req,res)=>{
     const user = req.body;
@@ -104,8 +105,24 @@ app.post('/jwt',async(req,res)=>{
       res.send(result)
     })
 
-
-
+    app.post('/application', async (req, res) => {
+      try {
+        const applicationData = req.body;
+        const result = await applicationCollection.insertOne(applicationData);
+        console.log(result);
+        res.send(result); 
+      } catch (error) {
+        console.error('Error inserting application:', error);
+        res.status(500).send({ message: 'Internal Server Error', error: error.message });
+      }
+    });
+    
+//Get application from api collection
+  app.get('/applications',async(req,res)=>{
+    const result = await applicationCollection.find().toArray()
+    console.log(result)
+    res.send(result)
+  })
 
 
 
